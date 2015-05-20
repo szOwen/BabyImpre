@@ -1,21 +1,28 @@
 package com.owenhuang.babyimpre.ui.base;
 
+import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import com.owenhuang.babyimpre.util.BILog;
+import com.owenhuang.babyimpre.util.CommonUtil;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
+import android.os.Environment;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
 
 /**
  * Surface对象也有生命周期：SurfaceView出现在屏幕上时，会创建Surface；SurfaceView从屏幕上消失时，Surface随即被销毁。
@@ -52,13 +59,16 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
 		@Override
 		public void onPictureTaken(byte[] data, Camera camera) {
 			//Create a filename
-			String fileName = UUID.randomUUID().toString() + ".jpg";
+			String filePath = CommonUtil.getSaveDir() + "/" + UUID.randomUUID().toString() + ".jpg";
+			File pictureFile = new File(filePath);
 			//Save the jpeg to disk
 			FileOutputStream out = null;
 			boolean success = true;
 			
 			try {
-				out = mContext.openFileOutput(fileName, Context.MODE_PRIVATE);
+				//out = mContext.openFileOutput(filePath, Context.MODE_PRIVATE);
+				pictureFile.createNewFile();
+				out = new FileOutputStream(pictureFile);
 				out.write(data);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -100,6 +110,63 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
     public void takePicture() {
     	mCamera.takePicture(mShutterCallback, mRawPictureCallback, mJpegPictureCallback);
     }
+    
+    /**
+     * 设置对焦区域
+     * @param rect
+     */
+    public void setFocusArea(MotionEvent event) {
+    	BILog.d(TAG, "setFocusArea: event.getRawX = " + event.getRawX() + ", event.getRawY = " + event.getRawY());
+    	Rect focusRect = calculateTapArea(event.getRawX(), event.getRawY(), 1f);  
+    	//BILog.d(TAG, "setFocusArea: focusRect.left = " + focusRect.left + ", focusRect.top = " + focusRect.top + ", focusRect.right = " + focusRect.right + ", focusRect.bottom = " + focusRect.bottom);
+        Rect meteringRect = calculateTapArea(event.getRawX(), event.getRawY(), 1.5f);  
+    	//BILog.d(TAG, "setFocusArea: meteringRect.left = " + meteringRect.left + ", meteringRect.top = " + meteringRect.top + ", meteringRect.right = " + meteringRect.right + ", meteringRect.bottom = " + meteringRect.bottom);
+  
+        Camera.Parameters params = mCamera.getParameters();  
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);  
+        
+    	/*List<Camera.Area> testArea = new ArrayList<Camera.Area>();  
+  	  
+        Rect areaRect1 = new Rect(-100, -100, 100, 100);    // 在图像的中心指定一个区域  
+        testArea.add(new Camera.Area(areaRect1, 600)); // 设置宽度到60%  
+        Rect areaRect2 = new Rect(540, -360, 640, -260);  // 在图像的右上角指定一个区域  
+        testArea.add(new Camera.Area(areaRect2, 1000)); // 收置宽度为40%  */
+        /*
+        int maxNumFocusAreas = params.getMaxNumFocusAreas();
+        if (maxNumFocusAreas > 0) {  
+            List<Camera.Area> focusAreas = new ArrayList<Camera.Area>();  
+            focusAreas.add(new Camera.Area(focusRect, 1000));
+          
+            params.setFocusAreas(focusAreas);  
+        }  
+  
+        int maxNumMeteringAreas = params.getMaxNumMeteringAreas();
+        if (maxNumMeteringAreas > 0) {  
+            List<Camera.Area> meteringAreas = new ArrayList<Camera.Area>();  
+            meteringAreas.add(new Camera.Area(meteringRect, 1000));  
+              
+            params.setMeteringAreas(meteringAreas);
+        }  
+  
+        mCamera.setParameters(params);  */
+		
+		//设置自动对焦
+		mCamera.autoFocus(this);
+    }
+    
+    /**
+     * 触摸事件
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent ev) {
+    	
+    	if (MotionEvent.ACTION_DOWN == ev.getAction()) {
+    		setFocusArea(ev);
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
 
     /**
      * 包含SurfaceView的视图层级结构被放到屏蔽上时调用该方法。这里也是Surface与其客户端进行关联的地方。
@@ -113,7 +180,7 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
 			
 			try {
 				mCamera.setPreviewDisplay(mSurfaceHolder);
-				mCamera.setDisplayOrientation(90);
+				//mCamera.setDisplayOrientation(90);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -142,11 +209,16 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
 		//设置聚焦模式
 
 		Size previewSize = getBestSupportedSize(params.getSupportedPreviewSizes(), width, height);
+		//BILog.d(TAG, "surfaceChanged: previewSize.width = " + previewSize.width + ", previewSize.height = " + previewSize.height);
 		params.setPreviewSize(previewSize.width, previewSize.height); 
+		
 		Size pictureSize = getBestSupportedSize(params.getSupportedPictureSizes(), width, height);
+		//BILog.d(TAG, "surfaceChanged: pictureSize.width = " + pictureSize.width + ", pictureSize.height = " + pictureSize.height);
 		params.setPictureSize(pictureSize.width, pictureSize.height);
-		params.setFocusMode(Camera.Parameters.FLASH_MODE_AUTO);
+		
+		params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
 		params.setPictureFormat(PixelFormat.JPEG);
+		
 		mCamera.setParameters(params);
 		
 		//设置自动对焦
@@ -207,4 +279,39 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
 		
 		return bestSize;
 	}
+	
+	/** 
+     * Convert touch position x:y to {@link Camera.Area} position -1000:-1000 to 1000:1000. 
+     */  
+    private Rect calculateTapArea(float x, float y, float coefficient) {  
+        float focusAreaSize = 300;  
+        int areaSize = Float.valueOf(focusAreaSize * coefficient).intValue();  
+  
+        int centerX = (int) (x / getResolution().width * 2000 - 1000);  
+        int centerY = (int) (y / getResolution().height * 2000 - 1000);  
+  
+        int left = clamp(centerX - areaSize / 2, -1000, 1000);  
+        int right = clamp(left + areaSize, -1000, 1000);  
+        int top = clamp(centerY - areaSize / 2, -1000, 1000);  
+        int bottom = clamp(top + areaSize, -1000, 1000);  
+  
+        return new Rect(left, top, right, bottom);  
+    }
+    
+    private int clamp(int x, int min, int max) {  
+        if (x > max) {  
+            return max;  
+        }  
+        if (x < min) {  
+            return min;  
+        }  
+        return x;  
+    } 
+    
+    private Camera.Size getResolution() {  
+        Camera.Parameters params = mCamera.getParameters();   
+        Camera.Size previewSize = params.getPreviewSize();  
+        BILog.d(TAG, "getResolution: previewSize.width = " + previewSize.width + ", previewSize.height = " + previewSize.height);
+        return previewSize;  
+    } 
 }
