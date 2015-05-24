@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.owehuang.babyimpre.R;
 import com.owenhuang.babyimpre.util.BILog;
 import com.owenhuang.babyimpre.util.CommonUtil;
 
@@ -17,12 +18,14 @@ import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
 import android.hardware.Camera.ShutterCallback;
 import android.hardware.Camera.Size;
-import android.os.Environment;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsoluteLayout;
+import android.widget.ImageView;
 
 /**
  * Surface对象也有生命周期：SurfaceView出现在屏幕上时，会创建Surface；SurfaceView从屏幕上消失时，Surface随即被销毁。
@@ -34,6 +37,8 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
 	private static final String TAG = CameraSurfaceView.class.getSimpleName();
 	
 	private Context mContext;
+	private ImageView mFocusIcon;
+	private int mFocusIconWidth, mFocusIconHeight;
 	
 	//SurfaceHolder是我们与Surface对象联系的纽带
 	private SurfaceHolder mSurfaceHolder = null;
@@ -108,7 +113,12 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
      * 拍照
      */
     public void takePicture() {
-    	mCamera.takePicture(mShutterCallback, mRawPictureCallback, mJpegPictureCallback);
+    	//mCamera.takePicture(mShutterCallback, mRawPictureCallback, mJpegPictureCallback);
+    	Camera.Parameters params = mCamera.getParameters(); 
+    	List<Camera.Area> focusAreaList = params.getFocusAreas();
+    	for (Camera.Area area : focusAreaList) {
+        	BILog.d(TAG, "takePicture: area.rect.left = " + area.rect.left + ", area.rect.top = " + area.rect.top + ", area.rect.right = " + area.rect.right + ", area.rect.bottom = " + area.rect.bottom);
+    	}
     }
     
     /**
@@ -116,22 +126,16 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
      * @param rect
      */
     public void setFocusArea(MotionEvent event) {
-    	BILog.d(TAG, "setFocusArea: event.getRawX = " + event.getRawX() + ", event.getRawY = " + event.getRawY());
+		
+    	//BILog.d(TAG, "setFocusArea: event.getRawX = " + event.getRawX() + ", event.getRawY = " + event.getRawY());
     	Rect focusRect = calculateTapArea(event.getRawX(), event.getRawY(), 1f);  
-    	//BILog.d(TAG, "setFocusArea: focusRect.left = " + focusRect.left + ", focusRect.top = " + focusRect.top + ", focusRect.right = " + focusRect.right + ", focusRect.bottom = " + focusRect.bottom);
+    	BILog.d(TAG, "setFocusArea: focusRect.left = " + focusRect.left + ", focusRect.top = " + focusRect.top + ", focusRect.right = " + focusRect.right + ", focusRect.bottom = " + focusRect.bottom);
         Rect meteringRect = calculateTapArea(event.getRawX(), event.getRawY(), 1.5f);  
     	//BILog.d(TAG, "setFocusArea: meteringRect.left = " + meteringRect.left + ", meteringRect.top = " + meteringRect.top + ", meteringRect.right = " + meteringRect.right + ", meteringRect.bottom = " + meteringRect.bottom);
   
         Camera.Parameters params = mCamera.getParameters();  
         params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);  
         
-    	/*List<Camera.Area> testArea = new ArrayList<Camera.Area>();  
-  	  
-        Rect areaRect1 = new Rect(-100, -100, 100, 100);    // 在图像的中心指定一个区域  
-        testArea.add(new Camera.Area(areaRect1, 600)); // 设置宽度到60%  
-        Rect areaRect2 = new Rect(540, -360, 640, -260);  // 在图像的右上角指定一个区域  
-        testArea.add(new Camera.Area(areaRect2, 1000)); // 收置宽度为40%  */
-        /*
         int maxNumFocusAreas = params.getMaxNumFocusAreas();
         if (maxNumFocusAreas > 0) {  
             List<Camera.Area> focusAreas = new ArrayList<Camera.Area>();  
@@ -148,10 +152,13 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
             params.setMeteringAreas(meteringAreas);
         }  
   
-        mCamera.setParameters(params);  */
+        mCamera.setParameters(params);
 		
 		//设置自动对焦
 		mCamera.autoFocus(this);
+		
+		//对焦动画
+		setFocusIconPos((int)event.getX(), (int)event.getY());
     }
     
     /**
@@ -180,7 +187,7 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
 			
 			try {
 				mCamera.setPreviewDisplay(mSurfaceHolder);
-				//mCamera.setDisplayOrientation(90);
+				mCamera.setDisplayOrientation(90);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -240,6 +247,13 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
 			mCamera = null;
 		}
 	}
+
+	@Override
+	public void onAutoFocus(boolean success, Camera camera) {
+		if (success) {
+			
+		}
+	}
 	
 	/**
 	 * 初始化
@@ -251,12 +265,34 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
 		mSurfaceHolder.addCallback(this);
 		mSurfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 	}
-
-	@Override
-	public void onAutoFocus(boolean success, Camera camera) {
-		if (success) {
+	
+	/**
+	 * 设置对焦图标位置
+	 * @param x
+	 * @param y
+	 */
+	private void setFocusIconPos(int x, int y) {
+		BILog.d(TAG, "setFocusIconPos: x = " + x + ", y = " + y);
+		
+    	//创建对焦图标并绑定到视图中
+    	if (null == mFocusIcon) {
+			ViewGroup viewGroup = (ViewGroup)getParent();
+			mFocusIcon = new ImageView(mContext);
+			mFocusIcon.setImageResource(R.drawable.ico_camera_focus);
 			
-		}
+			//计算图片宽高
+			int w = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);  
+			int h = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);  
+			mFocusIcon.measure(w, h);  
+			mFocusIconHeight = mFocusIcon.getMeasuredHeight();  
+			mFocusIconWidth = mFocusIcon.getMeasuredWidth(); 
+			
+			AbsoluteLayout.LayoutParams focusIconParams = new AbsoluteLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, x - mFocusIconWidth / 2, y - mFocusIconHeight / 2);
+			viewGroup.addView(mFocusIcon, focusIconParams);
+    	} else {
+    		AbsoluteLayout.LayoutParams focusIconParams = new AbsoluteLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, x - mFocusIconWidth / 2, y - mFocusIconHeight / 2);
+    		mFocusIcon.setLayoutParams(focusIconParams);
+    	}
 	}
 	
 	/**
@@ -311,7 +347,7 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
     private Camera.Size getResolution() {  
         Camera.Parameters params = mCamera.getParameters();   
         Camera.Size previewSize = params.getPreviewSize();  
-        BILog.d(TAG, "getResolution: previewSize.width = " + previewSize.width + ", previewSize.height = " + previewSize.height);
+        //BILog.d(TAG, "getResolution: previewSize.width = " + previewSize.width + ", previewSize.height = " + previewSize.height);
         return previewSize;  
     } 
 }

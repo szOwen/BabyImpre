@@ -4,12 +4,24 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
-	<com.owenhuang.babyimpre.ui.base.CameraSurfaceView
-	    android:id="@+id/main_surfaceview"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_weight="20"
-	    android:layout_gravity="center" />
+    <AbsoluteLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="20"
+        android:layout_gravity="center" >
+        
+		<com.owenhuang.babyimpre.ui.base.CameraSurfaceView
+		    android:id="@+id/main_surfaceview"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"/>
+		
+		<!--ImageView
+		    android:id="@+id/main_focus_icon"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:src="@drawable/ico_camera_focus"/-->
+		
+    </AbsoluteLayout>
 	
 	<Button 
 	    android:id="@+id/main_btn"
