@@ -36,6 +36,8 @@ import android.widget.ImageView;
 public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Callback, AutoFocusCallback {
 	private static final String TAG = CameraSurfaceView.class.getSimpleName();
 	
+	private static final int FOCUS_AREA_SIZE = 300;
+	
 	private Context mContext;
 	private ImageView mFocusIcon;
 	private int mFocusIconWidth, mFocusIconHeight;
@@ -126,11 +128,10 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
      * @param rect
      */
     public void setFocusArea(MotionEvent event) {
-		
-    	//BILog.d(TAG, "setFocusArea: event.getRawX = " + event.getRawX() + ", event.getRawY = " + event.getRawY());
-    	Rect focusRect = calculateTapArea(event.getRawX(), event.getRawY(), 1f);  
-    	BILog.d(TAG, "setFocusArea: focusRect.left = " + focusRect.left + ", focusRect.top = " + focusRect.top + ", focusRect.right = " + focusRect.right + ", focusRect.bottom = " + focusRect.bottom);
-        Rect meteringRect = calculateTapArea(event.getRawX(), event.getRawY(), 1.5f);  
+		//由于预览视图旋转了90度，所以这里的长和宽得换一下
+    	Rect focusRect = calculateTapArea(event.getY(), event.getX(), 1f);  
+    	//BILog.d(TAG, "setFocusArea: focusRect.left = " + focusRect.left + ", focusRect.top = " + focusRect.top + ", focusRect.right = " + focusRect.right + ", focusRect.bottom = " + focusRect.bottom);
+        Rect meteringRect = calculateTapArea(event.getY(), event.getX(), 1.5f);  
     	//BILog.d(TAG, "setFocusArea: meteringRect.left = " + meteringRect.left + ", meteringRect.top = " + meteringRect.top + ", meteringRect.right = " + meteringRect.right + ", meteringRect.bottom = " + meteringRect.bottom);
   
         Camera.Parameters params = mCamera.getParameters();  
@@ -317,11 +318,10 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
 	}
 	
 	/** 
-     * Convert touch position x:y to {@link Camera.Area} position -1000:-1000 to 1000:1000. 
+     * 将屏幕上的坐标转换为对焦坐标，对焦坐标的范围从 -1000:-1000 到 1000:1000
      */  
     private Rect calculateTapArea(float x, float y, float coefficient) {  
-        float focusAreaSize = 300;  
-        int areaSize = Float.valueOf(focusAreaSize * coefficient).intValue();  
+    	int areaSize = Float.valueOf(FOCUS_AREA_SIZE * coefficient).intValue();  
   
         int centerX = (int) (x / getResolution().width * 2000 - 1000);  
         int centerY = (int) (y / getResolution().height * 2000 - 1000);  
@@ -329,7 +329,7 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
         int left = clamp(centerX - areaSize / 2, -1000, 1000);  
         int right = clamp(left + areaSize, -1000, 1000);  
         int top = clamp(centerY - areaSize / 2, -1000, 1000);  
-        int bottom = clamp(top + areaSize, -1000, 1000);  
+        int bottom = clamp(top + areaSize, -1000, 1000); 
   
         return new Rect(left, top, right, bottom);  
     }
@@ -347,7 +347,6 @@ public class CameraSurfaceView extends SurfaceView implements SurfaceHolder.Call
     private Camera.Size getResolution() {  
         Camera.Parameters params = mCamera.getParameters();   
         Camera.Size previewSize = params.getPreviewSize();  
-        //BILog.d(TAG, "getResolution: previewSize.width = " + previewSize.width + ", previewSize.height = " + previewSize.height);
         return previewSize;  
     } 
 }
