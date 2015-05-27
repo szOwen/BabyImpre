@@ -19,7 +19,7 @@ public class MainActivity extends BaseActivity {
 		
 		setContentView(R.layout.activity_main);
 		
-		mCameraSurfaceView = (CameraSurfaceView)findViewById(R.id.main_surfaceview);
+		/*mCameraSurfaceView = (CameraSurfaceView)findViewById(R.id.main_surfaceview);
 		
 		Button btn = (Button)findViewById(R.id.main_btn);
 		btn.setOnClickListener(new OnClickListener() {
@@ -27,6 +27,6 @@ public class MainActivity extends BaseActivity {
 			public void onClick(View v) {
 				mCameraSurfaceView.takePicture();
 			}			
-		});
+		});*/
 	}
 }

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     
-    <AbsoluteLayout
+    <!-- AbsoluteLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="20"
@@ -15,13 +15,12 @@
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"/>
 		
-		<!--ImageView
-		    android:id="@+id/main_focus_icon"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:src="@drawable/ico_camera_focus"/-->
-		
-    </AbsoluteLayout>
+    </AbsoluteLayout-->
+    <com.owenhuang.babyimpre.ui.base.CameraView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="20"
+        android:layout_gravity="center"/>
 	
 	<Button 
 	    android:id="@+id/main_btn"
