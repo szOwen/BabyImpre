@@ -3,15 +3,15 @@
     
     <scale 
         android:interpolator= "@android:anim/decelerate_interpolator"
-        android:fromXScale="2.0"
+        android:fromXScale="1.4"
         android:toXScale="1.0"
-        android:fromYScale="2.0"
+        android:fromYScale="1.4"
         android:toYScale="1.0"
         android:pivotX="50%"
         android:pivotY="50%"
         android:startOffset="0"
-        android:duration="10000"
-        android:repeatCount="1"
+        android:duration="1000"
+        android:repeatCount="0"
         android:repeatMode="reverse"/>
 
 </set>

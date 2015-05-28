@@ -24,6 +24,9 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
 public class CameraView extends ViewGroup implements SurfaceHolder.Callback, AutoFocusCallback {
@@ -37,6 +40,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback, Aut
 	private Context mContext;
 	private SurfaceView mSurfaceView;
 	private ImageView mFocusIcon;
+	private Animation mFocusIconAni = null;
 	private int mFocusIconX = 0, mFocusIconY = 0;
 	private int mFocusIconWidth, mFocusIconHeight;
 	
@@ -116,7 +120,9 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback, Aut
 		//创建FocusIcon
 		mFocusIcon = new ImageView(mContext);
 		mFocusIcon.setId(VIEW_ID_FOCUSICON);
-		mFocusIcon.setImageResource(R.drawable.ico_camera_focus);			
+		mFocusIcon.setImageResource(R.drawable.ico_camera_focus);
+		mFocusIcon.setVisibility(View.GONE);
+		mFocusIcon.setTag(false);
 		int focusIconWidth = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);		//计算图片宽
 		int focusIconHeight = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);	//计算图片高
 		mFocusIcon.measure(focusIconWidth, focusIconHeight);  
@@ -124,6 +130,24 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback, Aut
 		mFocusIconWidth = mFocusIcon.getMeasuredWidth(); 		
 		MarginLayoutParams focusIconParams = new MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		addView(mFocusIcon, focusIconParams);
+		mFocusIconAni = AnimationUtils.loadAnimation(mContext, R.anim.camerasurfaceview_ani_focus);
+		mFocusIconAni.setAnimationListener(new AnimationListener() {
+			@Override
+			public void onAnimationStart(Animation animation) {
+				// TODO Auto-generated method stub
+				BILog.d(TAG, "onAnimationStart: Enter");
+			}
+			@Override
+			public void onAnimationEnd(Animation animation) {
+				BILog.d(TAG, "onAnimationEnd: Enter");
+				mFocusIcon.setImageResource(R.drawable.ico_camera_focused);
+			}
+			@Override
+			public void onAnimationRepeat(Animation animation) {
+				// TODO Auto-generated method stub
+				BILog.d(TAG, "onAnimationRepeat: Enter");				
+			}					
+		});
 		
         //设置SurfaceHolder
         mSurfaceHolder = mSurfaceView.getHolder();
@@ -200,6 +224,13 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback, Aut
 			childBottom = childTop + childHeight;
 			
 			childView.layout(childLeft, childTop, childRight, childBottom);
+			
+			if (childView.getId() == VIEW_ID_FOCUSICON && ((Boolean)childView.getTag()).booleanValue()) {
+				childView.setTag(false);
+				mFocusIcon.setImageResource(R.drawable.ico_camera_focus);
+				childView.setVisibility(View.VISIBLE);
+				childView.startAnimation(mFocusIconAni);
+			}
 		}
 	}
     
@@ -209,9 +240,9 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback, Aut
      */
     public void setFocusArea(MotionEvent event) {
 		//由于预览视图旋转了90度，所以这里的长和宽得换一下
-    	Rect focusRect = calculateTapArea(event.getX(), event.getY(), 1f);  
+    	Rect focusRect = calculateTapArea(event.getY(), event.getX(), 1f);  
     	//BILog.d(TAG, "setFocusArea: focusRect.left = " + focusRect.left + ", focusRect.top = " + focusRect.top + ", focusRect.right = " + focusRect.right + ", focusRect.bottom = " + focusRect.bottom);
-        Rect meteringRect = calculateTapArea(event.getX(), event.getY(), 1.5f);  
+        Rect meteringRect = calculateTapArea(event.getY(), event.getX(), 1.5f);  
     	//BILog.d(TAG, "setFocusArea: meteringRect.left = " + meteringRect.left + ", meteringRect.top = " + meteringRect.top + ", meteringRect.right = " + meteringRect.right + ", meteringRect.bottom = " + meteringRect.bottom);
   
         Camera.Parameters params = mCamera.getParameters();  
@@ -258,8 +289,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback, Aut
 
 	@Override
 	public void onAutoFocus(boolean success, Camera camera) {
-		// TODO Auto-generated method stub
-		
+		mFocusIcon.setVisibility(View.INVISIBLE);
 	}
 
     /**
@@ -298,8 +328,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback, Aut
 		
 		//获取Camera Parameters
 		Camera.Parameters params = mCamera.getParameters();
-		//设置聚焦模式
-
+		
 		Size previewSize = getBestSupportedSize(params.getSupportedPreviewSizes(), width, height);
 		//BILog.d(TAG, "surfaceChanged: previewSize.width = " + previewSize.width + ", previewSize.height = " + previewSize.height);
 		params.setPreviewSize(previewSize.width, previewSize.height); 
@@ -342,6 +371,7 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback, Aut
 		
 		mFocusIconX = x - mFocusIconWidth / 2;
 		mFocusIconY = y - mFocusIconHeight / 2;
+		mFocusIcon.setTag(true);
 		
 		//更新布局
 		requestLayout();
