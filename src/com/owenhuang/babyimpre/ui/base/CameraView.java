@@ -76,7 +76,6 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback, Aut
 			boolean success = true;
 			
 			try {
-				//out = mContext.openFileOutput(filePath, Context.MODE_PRIVATE);
 				pictureFile.createNewFile();
 				out = new FileOutputStream(pictureFile);
 				out.write(data);
@@ -159,12 +158,52 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback, Aut
      * 拍照
      */
     public void takePicture() {
-    	//mCamera.takePicture(mShutterCallback, mRawPictureCallback, mJpegPictureCallback);
+    	mCamera.takePicture(mShutterCallback, mRawPictureCallback, mJpegPictureCallback);
+    	/*测试
     	Camera.Parameters params = mCamera.getParameters(); 
     	List<Camera.Area> focusAreaList = params.getFocusAreas();
     	for (Camera.Area area : focusAreaList) {
         	BILog.d(TAG, "takePicture: area.rect.left = " + area.rect.left + ", area.rect.top = " + area.rect.top + ", area.rect.right = " + area.rect.right + ", area.rect.bottom = " + area.rect.bottom);
-    	}
+    	}*/
+    }
+    
+    /**
+     * 设置对焦区域
+     * @param rect
+     */
+    public void setFocusArea(MotionEvent event) {
+		//由于预览视图旋转了90度，所以这里的长和宽得换一下
+    	Rect focusRect = calculateTapArea(event.getY(), -event.getX(), 1f);  
+    	//BILog.d(TAG, "setFocusArea: focusRect.left = " + focusRect.left + ", focusRect.top = " + focusRect.top + ", focusRect.right = " + focusRect.right + ", focusRect.bottom = " + focusRect.bottom);
+        Rect meteringRect = calculateTapArea(event.getY(), -event.getX(), 1.5f);  
+    	//BILog.d(TAG, "setFocusArea: meteringRect.left = " + meteringRect.left + ", meteringRect.top = " + meteringRect.top + ", meteringRect.right = " + meteringRect.right + ", meteringRect.bottom = " + meteringRect.bottom);
+  
+        Camera.Parameters params = mCamera.getParameters();  
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);  
+        
+        int maxNumFocusAreas = params.getMaxNumFocusAreas();
+        if (maxNumFocusAreas > 0) {  
+            List<Camera.Area> focusAreas = new ArrayList<Camera.Area>();  
+            focusAreas.add(new Camera.Area(focusRect, 1000));
+          
+            params.setFocusAreas(focusAreas);  
+        }  
+  
+        int maxNumMeteringAreas = params.getMaxNumMeteringAreas();
+        if (maxNumMeteringAreas > 0) {  
+            List<Camera.Area> meteringAreas = new ArrayList<Camera.Area>();  
+            meteringAreas.add(new Camera.Area(meteringRect, 1000));  
+              
+            params.setMeteringAreas(meteringAreas);
+        }  
+  
+        mCamera.setParameters(params);
+		
+		//设置自动对焦
+		mCamera.autoFocus(this);
+		
+		//对焦动画
+		setFocusIconPos((int)event.getX(), (int)event.getY());
     }
     
     /**
@@ -233,45 +272,6 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback, Aut
 			}
 		}
 	}
-    
-    /**
-     * 设置对焦区域
-     * @param rect
-     */
-    public void setFocusArea(MotionEvent event) {
-		//由于预览视图旋转了90度，所以这里的长和宽得换一下
-    	Rect focusRect = calculateTapArea(event.getY(), event.getX(), 1f);  
-    	//BILog.d(TAG, "setFocusArea: focusRect.left = " + focusRect.left + ", focusRect.top = " + focusRect.top + ", focusRect.right = " + focusRect.right + ", focusRect.bottom = " + focusRect.bottom);
-        Rect meteringRect = calculateTapArea(event.getY(), event.getX(), 1.5f);  
-    	//BILog.d(TAG, "setFocusArea: meteringRect.left = " + meteringRect.left + ", meteringRect.top = " + meteringRect.top + ", meteringRect.right = " + meteringRect.right + ", meteringRect.bottom = " + meteringRect.bottom);
-  
-        Camera.Parameters params = mCamera.getParameters();  
-        params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);  
-        
-        int maxNumFocusAreas = params.getMaxNumFocusAreas();
-        if (maxNumFocusAreas > 0) {  
-            List<Camera.Area> focusAreas = new ArrayList<Camera.Area>();  
-            focusAreas.add(new Camera.Area(focusRect, 1000));
-          
-            params.setFocusAreas(focusAreas);  
-        }  
-  
-        int maxNumMeteringAreas = params.getMaxNumMeteringAreas();
-        if (maxNumMeteringAreas > 0) {  
-            List<Camera.Area> meteringAreas = new ArrayList<Camera.Area>();  
-            meteringAreas.add(new Camera.Area(meteringRect, 1000));  
-              
-            params.setMeteringAreas(meteringAreas);
-        }  
-  
-        mCamera.setParameters(params);
-		
-		//设置自动对焦
-		mCamera.autoFocus(this);
-		
-		//对焦动画
-		setFocusIconPos((int)event.getX(), (int)event.getY());
-    }
     
     /**
      * 触摸事件
