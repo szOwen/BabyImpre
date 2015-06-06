@@ -39,6 +39,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.owenhuang.babyimpre.ui.ImageGridActivity"/>
+        <activity
+            android:name="com.owenhuang.babyimpre.ui.ImageActivity"/>
         
     </application>
 

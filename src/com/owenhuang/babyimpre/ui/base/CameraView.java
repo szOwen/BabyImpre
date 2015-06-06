@@ -4,11 +4,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import com.owehuang.babyimpre.R;
+import com.owenhuang.babyimpre.BabyImpreApplication;
 import com.owenhuang.babyimpre.util.BILog;
 import com.owenhuang.babyimpre.util.CommonUtil;
+import com.owenhuang.babyimpre.util.SharedPreferencesUtil;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
@@ -69,7 +70,9 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback, Aut
 		@Override
 		public void onPictureTaken(byte[] data, Camera camera) {
 			//Create a filename
-			String filePath = CommonUtil.getSaveDir() + "/" + UUID.randomUUID().toString() + ".jpg";
+			int pictureIndex = SharedPreferencesUtil.getPictureIndex(BabyImpreApplication.getInstance());
+			SharedPreferencesUtil.setPictureIndex(BabyImpreApplication.getInstance(), ++pictureIndex);
+			String filePath = CommonUtil.getSaveDir() + "/BI" + pictureIndex + ".jpg";
 			File pictureFile = new File(filePath);
 			//Save the jpeg to disk
 			FileOutputStream out = null;
@@ -92,6 +95,8 @@ public class CameraView extends ViewGroup implements SurfaceHolder.Callback, Aut
 					success = false;
 				}
 			}
+			
+			mCamera.startPreview();
 		}		
 	};
 

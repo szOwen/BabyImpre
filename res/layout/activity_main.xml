@@ -1,33 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
-    
-    <!-- AbsoluteLayout
-        android:layout_width="wrap_content"
+    android:layout_height="match_parent" >
+	
+    <RelativeLayout
+        android:id="@+id/main_bottom"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="20"
-        android:layout_gravity="center" >
+		android:layout_alignParentBottom="true">
         
-		<com.owenhuang.babyimpre.ui.base.CameraSurfaceView
-		    android:id="@+id/main_surfaceview"
+		<Button 
+		    android:id="@+id/main_takepicture"
 		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"/>
-		
-    </AbsoluteLayout-->
+		    android:layout_height="wrap_content"
+		    android:layout_centerHorizontal="true"
+		    android:text="拍照"/>
+        
+		<Button 
+		    android:id="@+id/main_showpicture"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_alignParentLeft="true"
+		    android:text="查看"/>
+	</RelativeLayout>
+    
     <com.owenhuang.babyimpre.ui.base.CameraView
         android:id="@+id/main_cameraview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="20"
-        android:layout_gravity="center"/>
-	
-	<Button 
-	    android:id="@+id/main_btn"
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    android:layout_weight="1"
-	    android:layout_gravity="center"
-	    android:text="拍照"/>
-</LinearLayout>
+        android:layout_alignParentTop="true"
+        android:layout_above="@id/main_bottom"
+	    android:layout_centerHorizontal="true"/>
+</RelativeLayout>

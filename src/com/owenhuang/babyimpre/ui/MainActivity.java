@@ -1,5 +1,6 @@
 package com.owenhuang.babyimpre.ui;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,11 +22,20 @@ public class MainActivity extends BaseActivity {
 		
 		mCameraView = (CameraView)findViewById(R.id.main_cameraview);
 		
-		Button btn = (Button)findViewById(R.id.main_btn);
-		btn.setOnClickListener(new OnClickListener() {
+		Button takePictureBtn = (Button)findViewById(R.id.main_takepicture);
+		takePictureBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				mCameraView.takePicture();
+			}			
+		});
+		
+		Button showPictureBtn = (Button)findViewById(R.id.main_showpicture);
+		showPictureBtn.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent(MainActivity.this, ImageGridActivity.class);
+				startActivity(i);
 			}			
 		});
 	}

@@ -2,7 +2,6 @@ package com.owenhuang.babyimpre;
 
 import java.util.Stack;
 
-import com.owenhuang.babyimpre.util.CrashHandler;
 import com.owenhuang.babyimpre.util.BILog;
 import com.umeng.analytics.AnalyticsConfig;
 import com.umeng.analytics.MobclickAgent;
