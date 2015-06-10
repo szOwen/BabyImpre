@@ -5,7 +5,7 @@ import java.io.File;
 import android.os.Environment;
 
 public class CommonUtil {
-	private static final String COMMONUTIL_SAVEDIR_NAME = "BabyImpre";
+	public static final String COMMONUTIL_SAVEDIR_NAME = "BabyImpre";
 	
 	/**
 	 * 获取图片保存路径

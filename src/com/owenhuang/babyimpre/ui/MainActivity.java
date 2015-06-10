@@ -8,11 +8,12 @@ import android.widget.Button;
 
 import com.owehuang.babyimpre.R;
 import com.owenhuang.babyimpre.ui.base.BaseActivity;
-import com.owenhuang.babyimpre.ui.base.CameraView;
+import com.owenhuang.babyimpre.ui.base.CameraFilter;
+import com.owenhuang.babyimpre.ui.base.CameraViewGroup;
 
 public class MainActivity extends BaseActivity {
 	
-	private CameraView mCameraView;
+	private CameraViewGroup mCameraView;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -20,7 +21,7 @@ public class MainActivity extends BaseActivity {
 		
 		setContentView(R.layout.activity_main);
 		
-		mCameraView = (CameraView)findViewById(R.id.main_cameraview);
+		mCameraView = (CameraViewGroup)findViewById(R.id.main_cameraview);
 		
 		Button takePictureBtn = (Button)findViewById(R.id.main_takepicture);
 		takePictureBtn.setOnClickListener(new OnClickListener() {
@@ -34,9 +35,23 @@ public class MainActivity extends BaseActivity {
 		showPictureBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Intent i = new Intent(MainActivity.this, ImageGridActivity.class);
-				startActivity(i);
+				/*Intent i = new Intent(MainActivity.this, ImageGridActivity.class);
+				startActivity(i);*/
+
+				mCameraView.switchFilterTo(CameraFilter.createFilterForType(MainActivity.this, CameraFilter.FilterType.INVERT));
 			}			
 		});
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		mCameraView.onRusume();
+	}
+	
+	@Override
+	protected void onPause() {
+		super.onPause();
+		mCameraView.onPause();
 	}
 }

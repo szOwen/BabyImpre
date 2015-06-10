@@ -24,7 +24,7 @@
 		    android:text="查看"/>
 	</RelativeLayout>
     
-    <com.owenhuang.babyimpre.ui.base.CameraView
+    <com.owenhuang.babyimpre.ui.base.CameraViewGroup
         android:id="@+id/main_cameraview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

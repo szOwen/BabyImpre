@@ -7,6 +7,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.util.LruCache;
 
+/**
+ * 图片缓存管理类，所有图片都应该从这里读取
+ * @author XlOwen
+ *
+ */
 public class ImageCache {
 	private static final String TAG = ImageCache.class.getSimpleName();
 	
