@@ -42,7 +42,11 @@
         <activity
             android:name="com.owenhuang.babyimpre.ui.ImageGridActivity"/>
         <activity
-            android:name="com.owenhuang.babyimpre.ui.ImageActivity"/>
+            android:name="com.owenhuang.babyimpre.ui.ImageActivity"/>   
+        <service
+            android:name="com.owenhuang.tcptransfer.download.DownloadService" />
+        <service
+            android:name="com.owenhuang.tcptransfer.upload.UploadService" />     
         
     </application>
 

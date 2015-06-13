@@ -1,10 +1,5 @@
 package com.owenhuang.babyimpre.ui.base;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
 import com.owehuang.babyimpre.R;
 import com.owenhuang.babyimpre.BabyImpreApplication;
 import com.owenhuang.babyimpre.util.BILog;
@@ -27,7 +22,6 @@ import android.hardware.Camera.ShutterCallback;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.OrientationEventListener;
 import android.view.View;

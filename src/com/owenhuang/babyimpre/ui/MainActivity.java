@@ -8,11 +8,11 @@ import android.widget.Button;
 
 import com.owehuang.babyimpre.R;
 import com.owenhuang.babyimpre.ui.base.BaseActivity;
-import com.owenhuang.babyimpre.ui.base.CameraFilter;
 import com.owenhuang.babyimpre.ui.base.CameraViewGroup;
+import com.owenhuang.tcptransfer.download.DownloadMgr;
+import com.owenhuang.tcptransfer.upload.UploadMgr;
 
 public class MainActivity extends BaseActivity {
-	
 	private CameraViewGroup mCameraView;
 	
 	@Override
@@ -27,7 +27,8 @@ public class MainActivity extends BaseActivity {
 		takePictureBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mCameraView.takePicture();
+				//mCameraView.takePicture();
+				DownloadMgr.getInstance().init(MainActivity.this);
 			}			
 		});
 		
@@ -37,8 +38,7 @@ public class MainActivity extends BaseActivity {
 			public void onClick(View v) {
 				/*Intent i = new Intent(MainActivity.this, ImageGridActivity.class);
 				startActivity(i);*/
-
-				mCameraView.switchFilterTo(CameraFilter.createFilterForType(MainActivity.this, CameraFilter.FilterType.INVERT));
+				UploadMgr.getInstance().init(MainActivity.this);
 			}			
 		});
 	}
