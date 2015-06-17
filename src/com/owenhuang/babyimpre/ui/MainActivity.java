@@ -10,7 +10,6 @@ import com.owehuang.babyimpre.R;
 import com.owenhuang.babyimpre.ui.base.BaseActivity;
 import com.owenhuang.babyimpre.ui.base.CameraViewGroup;
 import com.owenhuang.tcptransfer.download.DownloadMgr;
-import com.owenhuang.tcptransfer.upload.UploadMgr;
 
 public class MainActivity extends BaseActivity {
 	private CameraViewGroup mCameraView;
@@ -36,9 +35,8 @@ public class MainActivity extends BaseActivity {
 		showPictureBtn.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				/*Intent i = new Intent(MainActivity.this, ImageGridActivity.class);
-				startActivity(i);*/
-				UploadMgr.getInstance().init(MainActivity.this);
+				Intent i = new Intent(MainActivity.this, ImageGridActivity.class);
+				startActivity(i);
 			}			
 		});
 	}

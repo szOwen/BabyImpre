@@ -44,9 +44,7 @@
         <activity
             android:name="com.owenhuang.babyimpre.ui.ImageActivity"/>   
         <service
-            android:name="com.owenhuang.tcptransfer.download.DownloadService" />
-        <service
-            android:name="com.owenhuang.tcptransfer.upload.UploadService" />     
+            android:name="com.owenhuang.tcptransfer.download.DownloadService" />    
         
     </application>
 
